@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>GraphSteer: Scene-Graph Steering for Video Diffusion Models</title>
+  <meta name="description" content="GraphSteer steers frozen text-to-video diffusion models towards every spatial relation in the prompt, without layouts or retraining.">
+  <meta property="og:title" content="GraphSteer: Scene-Graph Steering for Video Diffusion Models">
+  <meta property="og:description" content="Layout-free, plug-and-play steering of frozen video diffusion models with scene graphs.">
+  <meta property="og:image" content="static/images/og.jpg">
+  <meta property="og:type" content="website">
+  <meta name="twitter:card" content="summary_large_image">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><circle cx='8' cy='22' r='5' fill='%232e5ea8'/><circle cx='22' cy='22' r='5' fill='%23a3164f'/><circle cx='22' cy='8' r='5' fill='%23b07a12'/><path d='M13 22h4M22 17v-4' stroke='%23333' stroke-width='2'/></svg>">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="static/css/style.css">
+</head>
+<body>
+
+<nav class="nav" id="nav">
+  <div class="nav-inner">
+    <a href="#top" class="brand"><span class="brand-dot"></span>GraphSteer</a>
+    <div class="nav-links">
+      <a href="#videos">Videos</a>
+      <a href="#method">Method</a>
+      <a href="#compare">Comparison</a>
+      <a href="#results">Results</a>
+      <a href="#bibtex">BibTeX</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero" id="top">
+  <div class="hero-bg" aria-hidden="true">
+    <svg class="hero-graph" viewBox="0 0 1200 600" preserveAspectRatio="xMidYMid slice">
+      <g class="edges">
+        <line x1="180" y1="420" x2="420" y2="300"/><line x1="420" y1="300" x2="640" y2="140"/>
+        <line x1="640" y1="140" x2="900" y2="260"/><line x1="900" y1="260" x2="1060" y2="460"/>
+        <line x1="420" y1="300" x2="760" y2="470"/><line x1="760" y1="470" x2="1060" y2="460"/>
+        <line x1="180" y1="420" x2="300" y2="110"/><line x1="300" y1="110" x2="640" y2="140"/>
+      </g>
+      <g class="nodes">
+        <circle cx="180" cy="420" r="9"/><circle cx="420" cy="300" r="12"/><circle cx="640" cy="140" r="8"/>
+        <circle cx="900" cy="260" r="11"/><circle cx="1060" cy="460" r="8"/><circle cx="760" cy="470" r="10"/>
+        <circle cx="300" cy="110" r="7"/>
+      </g>
+    </svg>
+  </div>
+  <div class="container hero-inner">
+    <div class="venue-pill">Under review &middot; 2026</div>
+    <h1 class="title"><span class="gradient-text">GraphSteer</span><br>Scene-Graph Steering for Video Diffusion Models</h1>
+
+    <div class="authors">
+      <span class="author">Leonardo Stoppani<sup>1</sup></span>
+      <span class="author">Donald Shenaj<sup>1</sup></span>
+      <span class="author">Davide Bacciu<sup>1</sup></span>
+    </div>
+    <div class="affils"><span><sup>1</sup>University of Pisa</span></div>
+
+    <div class="links">
+      <!-- ARXIV: replace href and remove the "soon" class once the paper is on arXiv -->
+      <a class="btn soon" id="arxiv-link" href="#" title="arXiv link coming soon">
+        <svg viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M14 2v6h6M9 13h8M9 17h6" stroke="currentColor" stroke-width="1.8" fill="none"/></svg>
+        Paper
+      </a>
+      <a class="btn soon" id="arxiv-abs" href="#" title="arXiv link coming soon">
+        <span class="btn-ax">ar<b>X</b>iv</span>
+      </a>
+      <a class="btn" id="code-link" href="https://github.com/lilf4p/graphsteer" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 .5a11.5 11.5 0 0 0-3.64 22.4c.58.1.79-.25.79-.56v-2c-3.2.7-3.88-1.37-3.88-1.37-.53-1.33-1.28-1.69-1.28-1.69-1.05-.71.08-.7.08-.7 1.16.08 1.77 1.19 1.77 1.19 1.03 1.77 2.7 1.26 3.36.96.1-.75.4-1.26.73-1.55-2.56-.29-5.25-1.28-5.25-5.68 0-1.26.45-2.28 1.19-3.09-.12-.29-.52-1.46.11-3.05 0 0 .97-.31 3.17 1.18a11 11 0 0 1 5.77 0c2.2-1.49 3.17-1.18 3.17-1.18.63 1.59.23 2.76.11 3.05.74.81 1.19 1.83 1.19 3.09 0 4.41-2.69 5.38-5.26 5.67.41.36.78 1.06.78 2.14v3.17c0 .31.21.67.8.56A11.5 11.5 0 0 0 12 .5Z"/></svg>
+        Code <span class="tag">soon</span>
+      </a>
+      <a class="btn" href="#bibtex">
+        <svg viewBox="0 0 24 24"><path d="M8 4H5v16h3M16 4h3v16h-3" fill="none" stroke="currentColor" stroke-width="1.8"/></svg>
+        BibTeX
+      </a>
+    </div>
+
+    <p class="tldr"><b>TL;DR</b> &mdash; Text-to-video models often miss or misplace objects when a prompt names several relations.
+      GraphSteer turns the prompt into a <span class="hl">scene graph</span>, scores every relation directly from the model's
+      cross-attention, and steers a <span class="hl">frozen</span> generator towards all of them at once, with <span class="hl">no layout</span> and <span class="hl">no retraining</span>.</p>
+  </div>
+</header>
+
+<!-- ============ TEASER ============ -->
+<section class="section teaser-section">
+  <div class="container">
+    <div class="duo" data-clip="dog_cog" data-autoplay>
+      <div class="prompt-line">
+        <span class="backbone">CogVideoX-5b</span>
+        <p>&ldquo;A brown <span class="e e1">dog</span> runs across a park, <em>to the right of</em> a <span class="e e2">bench</span> and <em>below</em> a <span class="e e3">kite</span>&rdquo;</p>
+      </div>
+      <div class="duo-grid">
+        <figure class="player base"><div class="screen"></div><figcaption>Base model</figcaption></figure>
+        <figure class="player ours"><div class="screen"></div><figcaption>+ GraphSteer</figcaption></figure>
+      </div>
+      <div class="controls"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ ABSTRACT ============ -->
+<section class="section" id="abstract">
+  <div class="container narrow">
+    <h2 class="section-title"><span class="kicker">01</span>Abstract</h2>
+    <p class="abstract">
+      Text-to-video diffusion models can generate remarkable videos, but still struggle when prompts involve multiple relations between
+      objects, often missing or misplacing some of them. Existing approaches tackle this problem using box-based guidance to enforce the desired
+      relations. However, this requires defining the scene layout in advance, manually or using an LLM, for every prompt. This makes the process
+      impractical when scaling to more complex scenes, as it relies on a fixed layout that does not account for what the generator actually produces.
+    </p>
+    <p class="abstract">
+      We address these limitations by introducing <b>GraphSteer</b>, a plug-and-play method that uses scene graphs to guide generation towards
+      satisfying multiple relations, without requiring any predefined layout. GraphSteer represents the prompt as a scene graph, whose nodes are
+      objects and whose edges describe their spatial relations. We design a Graph Scorer Module that scores every edge directly from
+      cross-attention, so all relations are optimized through a single joint loss. We also observe that existing text-to-video benchmarks are not
+      designed to evaluate multiple relations jointly, making it difficult to identify individual relation failures or assess whether all relations
+      hold in the same video. To address this, we introduce multi-relation prompts and a global preference score based on pairwise VLM judgments.
+      On CogVideoX-5b, GraphSteer improves the T2V-CompBench spatial score from 0.545 to 0.631 and multi-relation per-edge accuracy from 0.225 to
+      0.392. Finally, we show that GraphSteer transfers zero-shot to different video generation architectures, including Wan2.2-A14B and
+      HunyuanVideo, without retraining.
+    </p>
+  </div>
+</section>
+
+<!-- ============ VIDEOS ============ -->
+<section class="section alt" id="videos">
+  <div class="container">
+    <h2 class="section-title"><span class="kicker">02</span>Base vs. GraphSteer</h2>
+    <p class="lead">Same prompt, same seed, same initial noise. The only difference is GraphSteer acting on the first 8 of 50 denoising steps.
+      Relations requested by the prompt are <span class="rel">highlighted</span>.</p>
+
+    <div class="gallery-tabs" role="tablist" id="gallery-tabs"></div>
+    <div class="duo" id="gallery-duo">
+      <div class="prompt-line">
+        <span class="backbone" data-bind="backbone"></span>
+        <p data-bind="prompt"></p>
+      </div>
+      <div class="duo-grid">
+        <figure class="player base"><div class="screen"></div><figcaption>Base model</figcaption></figure>
+        <figure class="player ours"><div class="screen"></div><figcaption>+ GraphSteer</figcaption></figure>
+      </div>
+      <div class="controls"></div>
+      <p class="note" data-bind="note"></p>
+    </div>
+    <p class="fineprint">Clips are shown as frame sequences sampled from the generated videos. Full-resolution videos will be added soon.</p>
+  </div>
+</section>
+
+<!-- ============ METHOD ============ -->
+<section class="section" id="method">
+  <div class="container">
+    <h2 class="section-title"><span class="kicker">03</span>How it works</h2>
+    <p class="lead">Layout-based methods plan boxes from the text alone and never see what the generator produces. GraphSteer instead
+      reads the relations off the generator's own attention while it denoises, and corrects them in place.</p>
+
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">1</div>
+        <h3>Prompt &rarr; scene graph</h3>
+        <p>An LLM parses the prompt into a graph: nodes are entities, edges are relations. Each edge is mapped to an axis
+          (horizontal, vertical, depth) and a sign.</p>
+        <div class="mini-graph">
+          <svg viewBox="0 0 300 150">
+            <defs><marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" class="arrow"/></marker></defs>
+            <line x1="150" y1="105" x2="70" y2="105" class="edge" marker-end="url(#ar)"/>
+            <line x1="160" y1="92" x2="222" y2="45" class="edge" marker-end="url(#ar)"/>
+            <text x="105" y="96" class="elabel">right of</text>
+            <text x="200" y="88" class="elabel">below</text>
+            <circle cx="58" cy="105" r="13" class="n2"/><text x="58" y="138" class="nlabel c2">bench</text>
+            <circle cx="160" cy="105" r="13" class="n1"/><text x="160" y="138" class="nlabel c1">dog</text>
+            <circle cx="232" cy="37" r="13" class="n3"/><text x="268" y="42" class="nlabel c3">kite</text>
+          </svg>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">2</div>
+        <h3>Graph Scorer Module</h3>
+        <p>Each entity's cross-attention maps from one DiT block are resampled to a fixed 8&times;16&times;16 grid and encoded as a node.
+          A small GNN then outputs, for every edge, a probability over the two signs of each axis.</p>
+        <div class="axis-bars">
+          <div class="axis"><span>horizontal</span><div class="bar"><i style="--v:.94"></i></div><em>right&nbsp;of</em></div>
+          <div class="axis"><span>vertical</span><div class="bar"><i style="--v:.88"></i></div><em>below</em></div>
+          <div class="axis"><span>depth</span><div class="bar muted"><i style="--v:.5"></i></div><em>&mdash;</em></div>
+        </div>
+      </div>
+      <div class="step">
+        <div class="step-num">3</div>
+        <h3>One loss, one update</h3>
+        <p>Cross-entropy against the parsed targets is summed over all edges, plus a term that stops objects from vanishing.
+          A normalized gradient step updates the latent during the first 8 steps; the generator stays frozen.</p>
+        <div class="eq">z<sub>t</sub> &larr; z<sub>t</sub> &minus; &eta; &nabla;<sub>z<sub>t</sub></sub>&#8466; / &#8214;&nabla;<sub>z<sub>t</sub></sub>&#8466;&#8214;</div>
+      </div>
+    </div>
+
+    <figure class="figure zoomable">
+      <img src="static/images/method_overview_single.webp" alt="Overview of the GraphSteer pipeline" loading="lazy">
+      <figcaption><b>Pipeline.</b> (1) An LLM parses the prompt into a scene graph with per-axis edge targets. (2) The Graph Scorer Module scores
+        every edge on each named axis from the entity attention of the frozen video DiT, resampled to a resolution-free grid. (3) One loss over all
+        edges compares these scores with the targets; its normalized gradient updates <i>z<sub>t</sub></i> during the first 8 denoising steps,
+        then sampling continues unchanged.</figcaption>
+    </figure>
+
+    <div class="split">
+      <div class="split-text">
+        <h3>Steering, as seen from the attention</h3>
+        <p>Both runs start from the same latent, so at step 0 the scorer sees identical maps and gives <i>&ldquo;cyclist left of mailbox&rdquo;</i>
+          a probability of <b>0.52</b>.</p>
+        <p>Without guidance the cyclist drifts to the right of the mailbox: <b>0.02</b> at step 4, <b>0.19</b> at step 30.
+          With GraphSteer it reaches <b>0.99</b> by step 4 and <b>1.00</b> afterwards. The <i>&ldquo;below&rdquo;</i> edge, already satisfied,
+          stays satisfied.</p>
+        <p>Guidance stops at step 8, yet the arrangement persists to the final video: the early steps fix the layout, the rest fill in the details.</p>
+      </div>
+      <figure class="figure zoomable split-fig">
+        <img src="static/images/attn_steering.webp" alt="Entity attention maps with and without GraphSteer" loading="lazy">
+        <figcaption>Head-averaged cross-attention of the three entities on the middle latent frame (CogVideoX-5b). Dots mark attention
+          centroids; numbers are the scorer's probabilities of the requested relations.</figcaption>
+      </figure>
+    </div>
+
+    <div class="cards">
+      <div class="card"><div class="card-ico">&#9675;&#8212;&#9675;</div><h4>Layout-free</h4><p>No boxes, no planner. Relations stay relative, as written in the prompt.</p></div>
+      <div class="card"><div class="card-ico">&#10052;</div><h4>Frozen generator</h4><p>Inference-time guidance only; the video model's weights are never touched.</p></div>
+      <div class="card"><div class="card-ico">&#8721;</div><h4>Joint over the graph</h4><p>Every relation shapes the same gradient, so fixing one edge does not break another.</p></div>
+      <div class="card"><div class="card-ico">&#8644;</div><h4>Zero-shot transfer</h4><p>Trained on CogVideoX attention, applied unchanged to Wan2.2, Wan2.1 and HunyuanVideo.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ COMPARISON ============ -->
+<section class="section alt" id="compare">
+  <div class="container">
+    <h2 class="section-title"><span class="kicker">04</span>Comparison with layout-based methods</h2>
+    <p class="lead">Pick a method and compare it to GraphSteer. Layout-based methods can satisfy the planned boxes and still lose objects
+      or relations in the final clip.</p>
+
+    <div class="cmp-prompts" id="cmp-prompts"></div>
+    <div class="cmp-methods" id="cmp-methods"></div>
+    <div class="duo" id="cmp-duo">
+      <div class="prompt-line">
+        <span class="backbone" data-bind="backbone"></span>
+        <p data-bind="prompt"></p>
+      </div>
+      <div class="duo-grid">
+        <figure class="player base"><div class="screen"></div><figcaption data-bind="other">Base</figcaption></figure>
+        <figure class="player ours"><div class="screen"></div><figcaption>GraphSteer</figcaption></figure>
+      </div>
+      <div class="controls"></div>
+    </div>
+    <p class="fineprint">VideoTetris runs on VideoCrafter2 and TTOM on Wan2.1-14B with its own prompt enrichment and seed; other methods share
+      backbone and seed. LVD at its released settings can remove objects and leave a flat background.</p>
+
+    <details class="more">
+      <summary>Show the full qualitative figure</summary>
+      <figure class="figure zoomable">
+        <img src="static/images/qual_all_methods.jpg" alt="Qualitative comparison of all methods" loading="lazy">
+      </figure>
+    </details>
+  </div>
+</section>
+
+<!-- ============ RESULTS ============ -->
+<section class="section" id="results">
+  <div class="container">
+    <h2 class="section-title"><span class="kicker">05</span>Results</h2>
+
+    <div class="stats">
+      <div class="stat"><div class="stat-label">T2V-CompBench spatial</div><div class="stat-val"><s>0.545</s><span class="to">&rarr;</span><b data-count="0.631">0.631</b></div><div class="stat-sub">CogVideoX-5b</div></div>
+      <div class="stat"><div class="stat-label">Multi-relation per-edge acc.</div><div class="stat-val"><s>0.225</s><span class="to">&rarr;</span><b data-count="0.392">0.392</b></div><div class="stat-sub">CogVideoX-5b</div></div>
+      <div class="stat"><div class="stat-label">All relations hold</div><div class="stat-val"><s>0.058</s><span class="to">&rarr;</span><b data-count="0.150">0.150</b></div><div class="stat-sub">CogVideoX-5b, 2.6&times;</div></div>
+      <div class="stat"><div class="stat-label">Zero-shot spatial</div><div class="stat-val"><s>0.610</s><span class="to">&rarr;</span><b data-count="0.715">0.715</b></div><div class="stat-sub">HunyuanVideo, no retraining</div></div>
+    </div>
+
+    <h3 class="sub">T2V-CompBench, spatial category</h3>
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead><tr><th>Method</th><th>Layout input</th><th>Spatial &uarr;</th><th class="barcol"></th></tr></thead>
+        <tbody>
+          <tr class="grp"><td colspan="4">CogVideoX-5b</td></tr>
+          <tr><td>Base</td><td>&mdash;</td><td>0.545</td><td class="barcol"><div class="hbar"><i style="--v:.545"></i></div></td></tr>
+          <tr><td>+ ViCo</td><td>&mdash;</td><td>0.545</td><td class="barcol"><div class="hbar"><i style="--v:.545"></i></div></td></tr>
+          <tr><td>+ LVD</td><td>LLM boxes</td><td>0.504</td><td class="barcol"><div class="hbar"><i style="--v:.504"></i></div></td></tr>
+          <tr><td>+ Comp-Attn</td><td>LLM boxes</td><td>0.601</td><td class="barcol"><div class="hbar"><i style="--v:.601"></i></div></td></tr>
+          <tr class="ours"><td>+ GraphSteer</td><td><b>none</b></td><td><b>0.631</b></td><td class="barcol"><div class="hbar"><i style="--v:.631"></i></div></td></tr>
+          <tr class="grp"><td colspan="4">HunyuanVideo</td></tr>
+          <tr><td>Base</td><td>&mdash;</td><td>0.610</td><td class="barcol"><div class="hbar"><i style="--v:.610"></i></div></td></tr>
+          <tr class="ours"><td>+ GraphSteer (zero-shot)</td><td><b>none</b></td><td><b>0.715</b></td><td class="barcol"><div class="hbar"><i style="--v:.715"></i></div></td></tr>
+          <tr class="grp"><td colspan="4">Wan2.1-14B</td></tr>
+          <tr><td>Base</td><td>&mdash;</td><td>0.569</td><td class="barcol"><div class="hbar"><i style="--v:.569"></i></div></td></tr>
+          <tr class="ours"><td>+ GraphSteer (zero-shot)</td><td><b>none</b></td><td><b>0.595</b></td><td class="barcol"><div class="hbar"><i style="--v:.595"></i></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <h3 class="sub">Multi-relation benchmark (CogVideoX-5b)</h3>
+    <p class="lead small">Our new prompt set states several relations per clip, so we can check each relation individually <em>and</em> whether
+      all of them hold in the same video.</p>
+    <div class="table-wrap">
+      <table class="tbl">
+        <thead><tr><th>Method</th><th>Layout</th><th>left/right</th><th>above/below</th><th>front/behind</th><th>per-edge</th><th>all-rel.</th><th>count</th><th>GPU-min/clip &darr;</th></tr></thead>
+        <tbody>
+          <tr><td>Base</td><td>&mdash;</td><td>0.125</td><td>0.500</td><td>0.235</td><td>0.225</td><td>0.058</td><td>0.534</td><td>4.2</td></tr>
+          <tr><td>+ LVD</td><td>LLM boxes</td><td>0.156</td><td>0.455</td><td>0.088</td><td>0.192</td><td>0.058</td><td>0.432</td><td>11.7</td></tr>
+          <tr><td>+ Comp-Attn</td><td>LLM boxes</td><td><b>0.383</b></td><td>0.523</td><td><b>0.279</b></td><td>0.379</td><td>0.133</td><td>0.634</td><td>9.8</td></tr>
+          <tr class="ours"><td>+ GraphSteer</td><td><b>none</b></td><td>0.367</td><td><b>0.636</b></td><td><b>0.279</b></td><td><b>0.392</b></td><td><b>0.150</b></td><td><b>0.740</b></td><td>5.3</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="split pref">
+      <div class="split-text">
+        <h3>A global preference score</h3>
+        <p>Averaging independent per-category scores can reward methods tuned to individual categories. We also ask a VLM judge which of two
+          clips better satisfies the <em>whole</em> prompt, in both presentation orders. A hard win requires both verdicts to agree.</p>
+        <div class="winrates">
+          <div class="wr"><span>vs. base</span><div class="wbar"><i style="--v:.746"></i></div><b>0.746</b></div>
+          <div class="wr"><span>vs. LVD</span><div class="wbar"><i style="--v:.863"></i></div><b>0.863</b></div>
+          <div class="wr"><span>vs. Comp-Attn</span><div class="wbar"><i style="--v:.588"></i></div><b>0.588</b></div>
+          <div class="wr"><span>vs. VideoTetris</span><div class="wbar"><i style="--v:.647"></i></div><b>0.647</b></div>
+        </div>
+        <p class="fineprint">Hard win rate of GraphSteer on CogVideoX-5b; above 0.5 favours GraphSteer.</p>
+      </div>
+      <figure class="figure zoomable split-fig narrowfig">
+        <img src="static/images/preference_protocol_v2.webp" alt="VLM-based global preference protocol" loading="lazy">
+        <figcaption>A real example in which GraphSteer wins in both presentation orders.</figcaption>
+      </figure>
+    </div>
+  </div>
+</section>
+
+<!-- ============ BIBTEX ============ -->
+<section class="section alt" id="bibtex">
+  <div class="container narrow">
+    <h2 class="section-title"><span class="kicker">06</span>BibTeX</h2>
+    <div class="bib">
+      <button class="copy" id="copy-bib" type="button">Copy</button>
+<pre><code id="bib-text">@article{stoppani2026graphsteer,
+  title   = {GraphSteer: Scene-Graph Steering for Video Diffusion Models},
+  author  = {Stoppani, Leonardo and Shenaj, Donald and Bacciu, Davide},
+  journal = {arXiv preprint arXiv:XXXX.XXXXX},
+  year    = {2026}
+}</code></pre>
+    </div>
+  </div>
+</section>
+
+<footer class="footer">
+  <div class="container">
+    <p>Code will be released soon at <a id="code-link-footer" href="https://github.com/lilf4p/graphsteer">github.com/lilf4p/graphsteer</a>.</p>
+    <p class="muted">Page layout inspired by the Nerfies project page. Licensed under CC BY-SA 4.0.</p>
+  </div>
+</footer>
+
+<div class="lightbox" id="lightbox" hidden><img alt=""><button type="button" aria-label="Close">&times;</button></div>
+
+<script src="static/js/main.js"></script>
+</body>
+</html>
