@@ -37,13 +37,6 @@ const GALLERY = [
 
 const COMPARE = [
   {
-    id: "rabbit",
-    label: "Rabbit · basket · bird",
-    backbone: "CogVideoX-5b",
-    prompt: `“A white rabbit hops across a lawn, ${R("to the left of a basket")} and ${R("below a bird")}”`,
-    methods: [["base", "Base"], ["videotetris", "VideoTetris"], ["lvd", "LVD"], ["compattn", "Comp-Attn"]],
-  },
-  {
     id: "horse",
     label: "Horse · scarecrow · barn · balloon",
     backbone: "Wan2.2-A14B",
