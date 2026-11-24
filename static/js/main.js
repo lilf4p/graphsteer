@@ -13,18 +13,11 @@ const R = (t) => `<em>${t}</em>`;
 
 const GALLERY = [
   {
-    id: "cyclist_cog",
-    label: "Cyclist · mailbox · traffic light",
-    backbone: "CogVideoX-5b",
-    prompt: `“A cyclist rides down a street, ${R("to the left of a mailbox")} and ${R("below a traffic light")}”`,
-    note: "The base model puts the mailbox on the left and the cyclist rides past on its right. With GraphSteer the mailbox moves to the right and the cyclist stays to its left, under the traffic light.",
-  },
-  {
-    id: "rabbit_cog",
-    label: "Rabbit · basket · bird",
-    backbone: "CogVideoX-5b",
-    prompt: `“A white rabbit hops across a lawn, ${R("to the left of a basket")} and ${R("below a bird")}”`,
-    note: "The base model puts the basket on the wrong side, at the top left of the frame. With GraphSteer the rabbit hops along to the left of the basket.",
+    id: "duck_wan",
+    label: "Duck · flowerpot · butterfly",
+    backbone: "Wan2.2-A14B",
+    prompt: `“A yellow duck waddles along a path, ${R("to the right of a flowerpot")} and ${R("below a butterfly")}”`,
+    note: "Zero-shot on Wan2.2: the base loses the flowerpot and keeps the butterfly on the ground. With GraphSteer the flowerpot stays on the left and the butterfly takes off above the duck, using a scorer never trained on Wan attention.",
   },
   {
     id: "fox_cog",
@@ -32,13 +25,6 @@ const GALLERY = [
     backbone: "CogVideoX-5b",
     prompt: `“A red fox trots through a meadow, ${R("to the left of a tree")} and ${R("below a hot air balloon")}”`,
     note: "In the base clip the fox trots to the right of a distant tree. With GraphSteer the fox crosses the meadow to the left of the tree, with the balloon rising above.",
-  },
-  {
-    id: "duck_wan",
-    label: "Duck · flowerpot · butterfly",
-    backbone: "Wan2.2-A14B",
-    prompt: `“A yellow duck waddles along a path, ${R("to the right of a flowerpot")} and ${R("below a butterfly")}”`,
-    note: "Zero-shot on Wan2.2: the base loses the flowerpot and keeps the butterfly on the ground. With GraphSteer the flowerpot stays on the left and the butterfly takes off above the duck, using a scorer never trained on Wan attention.",
   },
 ];
 
