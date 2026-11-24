@@ -20,6 +20,13 @@ const GALLERY = [
     note: "Zero-shot on Wan2.2: the base loses the flowerpot and keeps the butterfly on the ground. With GraphSteer the flowerpot stays on the left and the butterfly takes off above the duck, using a scorer never trained on Wan attention.",
   },
   {
+    id: "horse_wan",
+    label: "Horse · scarecrow · barn · balloon",
+    backbone: "Wan2.2-A14B",
+    prompt: `“A brown horse gallops across a field, ${R("to the right of a scarecrow")}, ${R("to the left of a barn")} and ${R("below a hot air balloon")}”`,
+    note: "Three relations on Wan2.2. In the base clip the horse gallops past the barn and ends up on its right. With GraphSteer it stays between the scarecrow and the barn, under the balloon.",
+  },
+  {
     id: "fox_cog",
     label: "Fox · tree · hot air balloon",
     backbone: "CogVideoX-5b",
