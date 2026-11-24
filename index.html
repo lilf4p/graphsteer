@@ -14,7 +14,11 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;0,8..60,700;1,8..60,400&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.css">
   <link rel="stylesheet" href="static/css/style.css">
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/katex.min.js"></script>
+  <script defer src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.9/contrib/auto-render.min.js"
+    onload="renderMathInElement(document.body,{delimiters:[{left:'\\[',right:'\\]',display:true},{left:'\\(',right:'\\)',display:false}],throwOnError:false})"></script>
 </head>
 <body>
 
@@ -179,8 +183,8 @@
       <div class="step trained">
         <div class="step-head"><span class="step-num">(2)</span><span class="badge">&#128293; the only trained part</span></div>
         <h3>Graph Scorer Module</h3>
-        <p>Each entity's cross-attention maps from one DiT block are resampled to a fixed 8&times;16&times;16 grid and encoded as a node.
-          A small GNN then outputs, for every edge, a probability over the two signs of each axis.</p>
+        <p>Each entity's cross-attention maps from one DiT block are resampled to a fixed \(8{\times}16{\times}16\) grid and encoded as a node.
+          A small GNN then outputs, for every edge \((i,j)\), a probability \(p^a_{ij}\) over the two signs of each axis \(a\).</p>
         <div class="axis-bars">
           <div class="axis"><span>horizontal</span><div class="bar"><i style="--v:.94"></i></div><em>right&nbsp;of</em></div>
           <div class="axis"><span>vertical</span><div class="bar"><i style="--v:.88"></i></div><em>below</em></div>
@@ -192,7 +196,7 @@
         <h3>One loss, one update</h3>
         <p>Cross-entropy against the parsed targets is summed over all edges, plus a term that stops objects from vanishing.
           A normalized gradient step updates the latent during the first 8 steps; the generator stays frozen.</p>
-        <div class="eq">z<sub>t</sub> &larr; z<sub>t</sub> &minus; &eta; &nabla;<sub>z<sub>t</sub></sub>&#8466; / &#8214;&nabla;<sub>z<sub>t</sub></sub>&#8466;&#8214;</div>
+        <div class="eq">\[z_t \leftarrow z_t - \eta\,\frac{\nabla_{z_t}\mathcal{L}}{\lVert\nabla_{z_t}\mathcal{L}\rVert}\]</div>
       </div>
     </div>
 
@@ -200,7 +204,7 @@
       <img src="static/images/method_overview_single.webp" alt="Overview of the GraphSteer pipeline" loading="lazy">
       <figcaption><b>Pipeline.</b> (1) An LLM parses the prompt into a scene graph with per-axis edge targets. (2) The Graph Scorer Module scores
         every edge on each named axis from the entity attention of the frozen video DiT, resampled to a resolution-free grid. (3) One loss over all
-        edges compares these scores with the targets; its normalized gradient updates <i>z<sub>t</sub></i> during the first 8 denoising steps,
+        edges compares these scores with the targets; its normalized gradient updates \(z_t\) during the first 8 denoising steps,
         then sampling continues unchanged.</figcaption>
     </figure>
 
