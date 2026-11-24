@@ -23,4 +23,4 @@ GraphSteer is a plug-and-play, layout-free method that steers frozen text-to-vid
 ## Website
 
 The site is static (`index.html`, `static/`) and served with GitHub Pages from the `main` branch.
-To swap the frame sequences for real videos, add `video: { base: "...mp4", ours: "...mp4" }` to a clip in `static/js/main.js`.
+Clips live in `static/videos/` (`<id>_base.mp4` / `<id>_ours.mp4`, comparison clips `cmp_<id>_<method>.mp4`) with thumbnails in `static/thumbs/`; the clip list is in `static/js/main.js`.

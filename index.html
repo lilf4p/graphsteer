@@ -45,7 +45,7 @@
       <circle cx="108" cy="388" r="11" class="g1"/><text x="64" y="424" class="lbl g1">cyclist</text>
       <circle cx="244" cy="238" r="11" class="g2"/><text x="262" y="243" class="lbl g2">mailbox</text>
       <circle cx="238" cy="478" r="11" class="g3"/><text x="256" y="483" class="lbl g3">traffic light</text>
-      <!-- right: the dog prompt from the teaser -->
+      <!-- right: the dog prompt from the paper's Fig. 1 -->
       <line x1="1010" y1="330" x2="895" y2="330" marker-end="url(#hg)"/><text x="918" y="318">right of</text>
       <line x1="1018" y1="318" x2="1090" y2="190" marker-end="url(#hg)"/><text x="1062" y="270">below</text>
       <circle cx="880" cy="330" r="11" class="g2"/><text x="862" y="366" class="lbl g2">bench</text>
@@ -92,10 +92,10 @@
 <!-- ============ TEASER ============ -->
 <section class="section teaser-section">
   <div class="container">
-    <div class="duo" data-clip="dog_cog" data-autoplay>
+    <div class="duo" data-clip="cyclist_cog" data-autoplay>
       <div class="prompt-line">
         <span class="backbone">CogVideoX-5b</span>
-        <p>&ldquo;A brown <span class="e e1">dog</span> runs across a park, <em>to the right of</em> a <span class="e e2">bench</span> and <em>below</em> a <span class="e e3">kite</span>&rdquo;</p>
+        <p>&ldquo;A <span class="e e1">cyclist</span> rides down a street, <em>to the left of</em> a <span class="e e2">mailbox</span> and <em>below</em> a <span class="e e3">traffic light</span>&rdquo;</p>
       </div>
       <div class="duo-grid">
         <figure class="player base"><div class="screen"></div><figcaption>Base model</figcaption></figure>
@@ -150,7 +150,7 @@
       <div class="controls"></div>
       <p class="note" data-bind="note"></p>
     </div>
-    <p class="fineprint">Clips are shown as frame sequences sampled from the generated videos. Full-resolution videos will be added soon.</p>
+    <p class="fineprint">Prompts are shown in short form; the clips were generated from a longer, more descriptive version of the same prompt, identical for base and GraphSteer. Examples were picked by hand.</p>
   </div>
 </section>
 

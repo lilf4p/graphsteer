@@ -180,6 +180,7 @@ img { max-width: 100%; display: block; }
 .scrub button.done { background: var(--text-2); }
 .scrub button.cur::after { content: ""; position: absolute; inset: 0; background: var(--text-2); transform-origin: left; animation: fill var(--dur, 900ms) linear forwards; }
 .duo.paused .scrub button.cur::after { animation: none; transform: scaleX(1); }
+.scrub .vbar i { position: absolute; inset: 0; background: var(--text-2); transform-origin: left; transform: scaleX(0); }
 @keyframes fill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
 .frame-label { font-family: var(--mono); font-size: 12px; color: var(--muted); min-width: 64px; text-align: right; }
 .note { color: var(--text-2); font-size: 15px; margin: 12px 4px 0; }

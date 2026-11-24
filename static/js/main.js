@@ -1,23 +1,37 @@
 /* GraphSteer project page
  *
- * Every clip below is shown as a short frame sequence taken from the paper figures.
- * To use real videos instead, add `video: { base: "static/videos/x_base.mp4", ours: "static/videos/x_ours.mp4" }`
- * to a clip: the player then switches to two synchronised <video> elements.
+ * Every clip is a pair of videos, static/videos/<id>_base.mp4 and static/videos/<id>_ours.mp4, with a thumbnail in
+ * static/thumbs/<id>.jpg. The comparison section plays static/videos/cmp_<id>_<method>.mp4.
+ * The player can also step through a list of frame images (pass arrays instead of .mp4 paths to load()).
  */
 
-const FRAME_DIR = "static/frames/";
-const N_FRAMES = 5;
+const VIDEO_DIR = "static/videos/";
+const THUMB_DIR = "static/thumbs/";
 const FRAME_MS = 900;
 
 const R = (t) => `<em>${t}</em>`;
 
 const GALLERY = [
   {
-    id: "dog_cog",
-    label: "Dog · bench · kite",
+    id: "cyclist_cog",
+    label: "Cyclist · mailbox · traffic light",
     backbone: "CogVideoX-5b",
-    prompt: `“A brown dog runs across a park, ${R("to the right of a bench")} and ${R("below a kite")}”`,
-    note: "The base model leaves the dog to the left of the bench. With GraphSteer the dog runs to the right of the bench, underneath the kite.",
+    prompt: `“A cyclist rides down a street, ${R("to the left of a mailbox")} and ${R("below a traffic light")}”`,
+    note: "The base model puts the mailbox on the left and the cyclist rides past on its right. With GraphSteer the mailbox moves to the right and the cyclist stays to its left, under the traffic light.",
+  },
+  {
+    id: "rabbit_cog",
+    label: "Rabbit · basket · bird",
+    backbone: "CogVideoX-5b",
+    prompt: `“A white rabbit hops across a lawn, ${R("to the left of a basket")} and ${R("below a bird")}”`,
+    note: "The base model puts the basket on the wrong side, at the top left of the frame. With GraphSteer the rabbit hops along to the left of the basket.",
+  },
+  {
+    id: "fox_cog",
+    label: "Fox · tree · hot air balloon",
+    backbone: "CogVideoX-5b",
+    prompt: `“A red fox trots through a meadow, ${R("to the left of a tree")} and ${R("below a hot air balloon")}”`,
+    note: "In the base clip the fox trots to the right of a distant tree. With GraphSteer the fox crosses the meadow to the left of the tree, with the balloon rising above.",
   },
   {
     id: "duck_wan",
@@ -25,20 +39,6 @@ const GALLERY = [
     backbone: "Wan2.2-A14B",
     prompt: `“A yellow duck waddles along a path, ${R("to the right of a flowerpot")} and ${R("below a butterfly")}”`,
     note: "Zero-shot on Wan2.2: the base loses the flowerpot and keeps the butterfly on the ground. With GraphSteer the flowerpot stays on the left and the butterfly takes off above the duck, using a scorer never trained on Wan attention.",
-  },
-  {
-    id: "duck_cog",
-    label: "Duck · flowerpot · butterfly",
-    backbone: "CogVideoX-5b",
-    prompt: `“A yellow duck waddles along a path, ${R("to the right of a flowerpot")} and ${R("below a butterfly")}”`,
-    note: "In the base clip the flowerpot sits behind the duck instead of to its left. GraphSteer moves the flowerpot to the left of the duck, with the butterfly above.",
-  },
-  {
-    id: "rabbit_cog",
-    label: "Rabbit · basket · bird",
-    backbone: "CogVideoX-5b",
-    prompt: `“A white rabbit hops across a lawn, ${R("to the left of a basket")} and ${R("below a bird")}”`,
-    note: "The base model puts the basket on the wrong side, cut off at the left edge. With GraphSteer the basket sits to the right of the rabbit.",
   },
 ];
 
@@ -104,12 +104,23 @@ class DuoPlayer {
         s.innerHTML = `<video muted loop playsinline preload="metadata" src="${[sources.base, sources.ours][k]}"></video>`;
         return s.firstChild;
       });
-      this.videos[0].addEventListener("loadedmetadata", () => {
-        const v = this.videos[0];
-        this.root.style.setProperty("--ar", `${v.videoWidth}/${v.videoHeight}`);
+      const v = this.videos[1]; // GraphSteer clip: its aspect ratio and clock drive the pair
+      v.addEventListener("loadedmetadata", () => this.root.style.setProperty("--ar", `${v.videoWidth}/${v.videoHeight}`));
+      this.scrub.innerHTML = '<button class="vbar" type="button" aria-label="Seek"><i></i></button>';
+      const bar = this.scrub.firstChild;
+      bar.addEventListener("click", (e) => {
+        const r = bar.getBoundingClientRect(), f = (e.clientX - r.left) / r.width;
+        this.videos.forEach((x) => x.duration && (x.currentTime = Math.min(f * v.duration, x.duration - 0.05)));
       });
-      this.scrub.innerHTML = "";
-      this.label.textContent = "";
+      const tick = () => {
+        if (this.videos?.[1] !== v) return;
+        if (v.duration) {
+          bar.firstChild.style.transform = `scaleX(${v.currentTime / v.duration})`;
+          this.label.textContent = `${v.currentTime.toFixed(1)}s / ${v.duration.toFixed(1)}s`;
+        }
+        requestAnimationFrame(tick);
+      };
+      requestAnimationFrame(tick);
       this.schedule();
       return;
     }
@@ -146,8 +157,9 @@ class DuoPlayer {
     const run = this.playing && this.visible;
     this.root.classList.toggle("paused", !run);
     if (this.mode === "video") {
+      const [a, b] = this.videos;
+      if (run && a.duration === b.duration) a.currentTime = b.currentTime; // clips from other backbones differ in length
       this.videos.forEach((v) => (run ? v.play().catch(() => {}) : v.pause()));
-      if (run) this.videos[1].currentTime = this.videos[0].currentTime;
       return;
     }
     if (!run) return;
@@ -155,12 +167,11 @@ class DuoPlayer {
   }
 
   pause() { this.playing = false; this.btn.innerHTML = ICON_PLAY; this.btn.ariaLabel = "Play"; this.schedule(); }
-  play() { this.playing = true; this.btn.innerHTML = ICON_PAUSE; this.btn.ariaLabel = "Pause"; this.show(this.idx); this.schedule(); }
+  play() { this.playing = true; this.btn.innerHTML = ICON_PAUSE; this.btn.ariaLabel = "Pause"; if (this.mode === "frames") this.show(this.idx); this.schedule(); }
   toggle() { this.playing ? this.pause() : this.play(); }
 }
 
-const frames = (prefix) => Array.from({ length: N_FRAMES }, (_, i) => `${FRAME_DIR}${prefix}_${i}.jpg`);
-const clipSources = (c) => c.video ? c.video : { base: frames(`${c.id}_base`), ours: frames(`${c.id}_ours`) };
+const clipSources = (c) => ({ base: `${VIDEO_DIR}${c.id}_base.mp4`, ours: `${VIDEO_DIR}${c.id}_ours.mp4` });
 
 function bind(root, data) {
   root.querySelectorAll("[data-bind]").forEach((el) => {
@@ -181,7 +192,7 @@ const tabs = document.getElementById("gallery-tabs");
 const galleryItems = GALLERY.slice(1).concat(GALLERY.slice(0, 1)); // start on a clip that is not the teaser
 tabs.innerHTML = galleryItems.map((c, i) => `
   <button class="chip${i ? "" : " active"}" type="button" data-i="${i}">
-    <img class="thumb" src="${FRAME_DIR}${c.id}_ours_2.jpg" alt="">${c.label} <small>${c.backbone}</small>
+    <img class="thumb" src="${THUMB_DIR}${c.id}.jpg" alt="">${c.label} <small>${c.backbone}</small>
   </button>`).join("");
 function selectGallery(i) {
   const c = galleryItems[i];
@@ -202,7 +213,7 @@ let cmpP = 0, cmpM = 0;
 
 cmpPrompts.innerHTML = COMPARE.map((c, i) => `
   <button class="chip${i ? "" : " active"}" type="button" data-i="${i}">
-    <img class="thumb" src="${FRAME_DIR}cmp_${c.id}_ours_2.jpg" alt="">${c.label} <small>${c.backbone}</small>
+    <img class="thumb" src="${THUMB_DIR}cmp_${c.id}.jpg" alt="">${c.label} <small>${c.backbone}</small>
   </button>`).join("");
 
 function renderCmp() {
@@ -212,7 +223,7 @@ function renderCmp() {
     `<button class="chip${i === cmpM ? " active" : ""}" type="button" data-i="${i}">GraphSteer vs. ${name}</button>`).join("");
   const [key, name] = c.methods[cmpM];
   bind(cmpRoot, { backbone: c.backbone, prompt: c.prompt, other: SUBTITLE[key] ? `${name} <span style="opacity:.7;font-weight:500">(${SUBTITLE[key]})</span>` : name });
-  cmp.load({ base: frames(`cmp_${c.id}_${key}`), ours: frames(`cmp_${c.id}_ours`) });
+  cmp.load({ base: `${VIDEO_DIR}cmp_${c.id}_${key}.mp4`, ours: `${VIDEO_DIR}cmp_${c.id}_ours.mp4` });
   if (!cmp.playing) cmp.play();
 }
 cmpPrompts.addEventListener("click", (e) => { const b = e.target.closest(".chip"); if (b) { cmpP = +b.dataset.i; cmpM = 0; renderCmp(); } });
