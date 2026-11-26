@@ -20,13 +20,6 @@ const GALLERY = [
     note: "Zero-shot on Wan2.2: the base loses the flowerpot and keeps the butterfly on the ground. With GraphSteer the flowerpot stays on the left and the butterfly takes off above the duck, using a scorer never trained on Wan attention.",
   },
   {
-    id: "deer_cog",
-    label: "Deer · cabin · moon",
-    backbone: "CogVideoX-5b",
-    prompt: `“A deer walks through a clearing, ${R("to the right of a cabin")} and ${R("below the moon")}”`,
-    note: "The base model puts the deer to the left of the cabin and leaves it standing still. With GraphSteer the deer walks to the right of the cabin, under the full moon.",
-  },
-  {
     id: "goat_cog",
     label: "Goat · tractor · crow",
     backbone: "CogVideoX-5b",
@@ -39,13 +32,6 @@ const GALLERY = [
     backbone: "CogVideoX-5b",
     prompt: `“An elephant walks across the savanna, ${R("to the left of an acacia tree")} and ${R("below an eagle")}”`,
     note: "The base clip has no eagle, and the acacia trees are tiny shapes on the horizon. With GraphSteer the elephant walks to the left of an acacia, with the eagle circling above.",
-  },
-  {
-    id: "boy_cog",
-    label: "Boy · goal · drone",
-    backbone: "CogVideoX-5b",
-    prompt: `“A boy dribbles a ball across a field, ${R("to the left of a goal")} and ${R("below a drone")}”`,
-    note: "The base model puts the goal on the left and the boy to its right. With GraphSteer the boy dribbles to the left of the goal, under the hovering drone.",
   },
   {
     id: "horse_wan",
