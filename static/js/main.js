@@ -34,13 +34,6 @@ const GALLERY = [
     note: "In the base clip the robot dances to the left of the backpack. With GraphSteer the backpack moves to the left and the robot dances on its right.",
   },
   {
-    id: "llama_wan",
-    label: "Llama · motorcycle",
-    backbone: "Wan2.2-A14B",
-    prompt: `“A llama walking ${R("on the left side of a motorcycle")} in a city street”`,
-    note: "In the base clip the llama only wanders in at the very end. With GraphSteer it walks on the left side of the motorcycle for the whole clip.",
-  },
-  {
     id: "toddler_wan",
     label: "Toddler · dog",
     backbone: "Wan2.2-A14B",
