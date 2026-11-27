@@ -1,6 +1,6 @@
 # Scene-Graph Steering for Video Diffusion Models
 
-**Leonardo Stoppani, Donald Shenaj, Davide Bacciu** — University of Pisa
+**Leonardo Stoppani, Donald Shenaj, Davide Bacciu** - Department of Computer Science, University of Pisa
 
 🌐 **Project page:** https://lilf4p.github.io/graphsteer/  
 📄 **Paper:** arXiv link coming soon
