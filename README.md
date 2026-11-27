@@ -1,4 +1,4 @@
-# GraphSteer: Scene-Graph Steering for Video Diffusion Models
+# Scene-Graph Steering for Video Diffusion Models
 
 **Leonardo Stoppani, Donald Shenaj, Davide Bacciu** — University of Pisa
 
